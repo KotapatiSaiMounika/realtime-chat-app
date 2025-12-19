@@ -50,7 +50,16 @@ export const login = async (req,res)=>{
     }
 
     const token = generateToken(userData._id);
-    res.json({success:true, message:"Login successful", userData, token});
+    const userSafe = userData.toObject();
+delete userSafe.password;
+
+res.json({
+  success: true,
+  message: "Login successful",
+  userData: userSafe,
+  token
+});
+
 
   } catch (error){
 
@@ -74,7 +83,7 @@ export const updateProfile = async (req, res) => {
     if(!profilePic){
      updatedUser= await User.findByIdAndUpdate(userId, {fullName, bio},{new:true});
     } else {
-      const upload = await clodinary.uploader.upload(profilePic);
+      const upload = await cloudinary.uploader.upload(profilePic);
       updatedUser = await User.findByIdAndUpdate(userId, {fullName, bio, profilePic: upload.secure_url}, {new:true});
     }
     res.json({success:true,user: updatedUser})

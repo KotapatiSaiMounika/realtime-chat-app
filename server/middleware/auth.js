@@ -1,29 +1,35 @@
-import express from "express";
-import "dotenv/config";
-import cors from "cors";
-import http from "http";
-import { connectDB } from "./lib/db.js";
-import userRouter from "./routes/userRoutes.js";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-//creating Express App and HTTP server
-const app= express();
-const server=http.createServer(app);
+// middleware to protect routes
+export const protectRoute = async (req, res, next) => {
+  try {
+    const token = req.headers.token;
 
-//Middlewares
-app.use(express.json({limit:"4mb"}))
-app.use(cors());
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided"
+      });
+    }
 
-//routes set up
-app.use("/api/status",(req,res)=>{
-  res.send("Server is live");
-})
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-app.use("/api/auth", userRouter)
+    const user = await User.findById(decoded.userId).select("-password");
 
-//connect to mongodb
-await connectDB();
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found"
+      });
+    }
 
-const PORT= process.env.PORT || 5000;
-server.listen(PORT, ()=>{
-  console.log("Server is running on PORT " + PORT);
-})
+    req.user = user;
+    next(); 
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized"
+    });
+  }
+};
