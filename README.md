@@ -1,6 +1,9 @@
 Real-Time Chat Application (QuickChat)
 
 A full-stack real-time chat application that allows users to communicate instantly with each other.
+
+🌐 Live Demo: https://realtime-chat-app-xi-inky.vercel.app
+
 QuickChat supports authentication, online/offline status, profile management, image sharing, and real-time messaging using Socket.IO.
 
 This project demonstrates how modern chat applications work under the hood using WebSockets.
